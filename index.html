@@ -63,11 +63,11 @@
     margin-bottom: 48px;
   }
   .header h1 {
-    font-size: clamp(22px, 4vw, 36px);
+    font-size: clamp(28px, 5vw, 52px);
     font-weight: 800;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.02em;
     color: #fff;
-    line-height: 1.1;
+    line-height: 1.15;
   }
   .header h1 span { color: var(--accent); }
   .header p {
@@ -648,6 +648,70 @@
     background: var(--border);
   }
 
+  /* ── SDR TOGGLE ─────────────────────────────── */
+  .sdr-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .sdr-toggle-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .sdr-toggle-label.active-label { color: var(--sales); }
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--border2);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: 1px solid var(--border2);
+    flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--sales); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 18px; height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    top: 2px; left: 2px;
+    transition: left 0.2s;
+  }
+  .toggle-switch.on::after { left: 22px; }
+  .sdr-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--sales-dim);
+    border: 1px solid rgba(79,142,247,0.4);
+    color: var(--sales);
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  .sdr-note {
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    min-height: 16px;
+    transition: opacity 0.2s;
+  }
+
   /* responsive */
   @media (max-width: 768px) {
     .flow-grid { grid-template-columns: repeat(4, 1fr); }
@@ -695,6 +759,14 @@
       <div class="band band-deal">↓ Post-Sale Territory</div>
     </div>
 
+    <!-- SDR Toggle -->
+    <div class="sdr-toggle">
+      <span class="sdr-toggle-label" id="lbl-no-sdr">No SDR / AE-only</span>
+      <div class="toggle-switch" id="sdr-toggle" onclick="toggleSDR()"></div>
+      <span class="sdr-toggle-label" id="lbl-sdr">With SDR / Pre-Sales</span>
+    </div>
+    <div class="sdr-note" id="sdr-note">Lead Status starts at SQL. AE owns the full motion from MQL handoff.</div>
+
     <!-- Main 8-column flow -->
     <div class="full-flow-wrap">
     <div class="full-flow-inner">
@@ -728,30 +800,44 @@
       <!-- 3. MQL -->
       <div class="stage-node">
         <div class="stage-lc lc-mql">MQL</div>
-        <div class="status-stack">
+        <div class="status-stack" id="mql-status-no-sdr">
           <div class="status-pill">No Lead Status</div>
+        </div>
+        <div class="status-stack" id="mql-status-sdr" style="display:none;">
+          <div class="status-pill active-status">New <span class="sdr-badge">SDR</span></div>
+          <div class="status-pill active-status">Attempted Contact</div>
+          <div class="status-pill active-status">Connected</div>
+          <div class="status-pill active-status">In Progress</div>
+          <div class="status-pill" style="border-color:rgba(0,201,167,0.4);color:var(--mkt);background:var(--mkt-dim);font-weight:700;">↓ Meeting Booked → SQL</div>
+          <div class="status-pill" style="border-color:rgba(248,113,113,0.3);color:var(--danger);background:var(--danger-dim);">Unqualified</div>
+          <div class="status-pill" style="border-color:rgba(167,139,250,0.3);color:var(--deal);background:var(--deal-dim);">Bad Timing</div>
         </div>
         <div class="deal-stage-stack" style="margin-top:4px">
           <div class="deal-pill" style="background:transparent;border-color:transparent;color:transparent">—</div>
         </div>
-        <div class="note-label">Score / ICP fit<br>Marketing hands off</div>
+        <div class="note-label" id="mql-note-no-sdr">Score / ICP fit<br>Marketing hands off</div>
+        <div class="note-label" id="mql-note-sdr" style="display:none;">SDR assigned<br>Goal: book the meeting</div>
       </div>
 
       <!-- 4. SQL -->
       <div class="stage-node">
         <div class="stage-lc lc-sql">SQL</div>
-        <div class="status-stack">
+        <div class="status-stack" id="sql-status-no-sdr">
           <div class="status-pill active-status">New</div>
           <div class="status-pill active-status">Attempted Contact</div>
           <div class="status-pill active-status">Connected</div>
           <div class="status-pill active-status">In Progress</div>
+        </div>
+        <div class="status-stack" id="sql-status-sdr" style="display:none;">
+          <div class="status-pill active-status">Open Deal <span class="sdr-badge">AE</span></div>
         </div>
         <!-- Deal created at Stage 1 (pre-pipeline) -->
         <div class="deal-stage-stack" style="margin-top:6px">
           <div class="deal-pill pre-pipe">① Appt Scheduled</div>
           <div class="note-label" style="color:var(--sales);font-size:8px">Deal created here<br>(pre-pipeline)</div>
         </div>
-        <div class="note-label">Sales accepts<br>Deal record created</div>
+        <div class="note-label" id="sql-note-no-sdr">Sales accepts<br>Deal record created</div>
+        <div class="note-label" id="sql-note-sdr" style="display:none;">Meeting booked → Deal created<br>AE takes over at Stage 1</div>
       </div>
 
       <!-- 5. OPPORTUNITY -->
@@ -1102,7 +1188,7 @@
     <p style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text-dim);line-height:1.8;">
       The HubSpot Lead Object is a separate CRM object that sits <strong style="color:var(--text)">between Contact and Deal</strong>. 
       It allows multiple sales motions on the same contact without polluting lifecycle stage history. 
-      Each Lead Object has its own status, owner, and pipeline — making it ideal for pre-sales, recycles, win-backs, and multi-product scenarios.
+      Each Lead Object has its own status, owner, and pipeline — making it ideal for recycles, win-backs, and multi-product scenarios.
     </p>
   </div>
 
@@ -1189,6 +1275,7 @@
         <ul class="compare-list">
           <li>Use <strong>extra Lead Status values</strong> to track recycles (e.g. Recycled, Re-Engaged)</li>
           <li>Single contact record carries all history — can get messy with multiple sales cycles</li>
+          <li>Lifecycle Stage manipulation required on recycle — must clear and reset</li>
           <li>Better for <strong>simpler funnels</strong> and smaller teams</li>
           <li>No additional HubSpot objects to configure or maintain</li>
           <li>Bad Timing / Unqualified exit statuses serve double duty as "parked" states</li>
@@ -1219,6 +1306,39 @@ function showView(name) {
   document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + name).classList.add('active');
   event.target.classList.add('active');
+}
+
+let sdrOn = false;
+function toggleSDR() {
+  sdrOn = !sdrOn;
+  const toggle = document.getElementById('sdr-toggle');
+  const note = document.getElementById('sdr-note');
+  const lblNoSdr = document.getElementById('lbl-no-sdr');
+  const lblSdr = document.getElementById('lbl-sdr');
+
+  toggle.classList.toggle('on', sdrOn);
+  lblNoSdr.classList.toggle('active-label', !sdrOn);
+  lblSdr.classList.toggle('active-label', sdrOn);
+
+  // MQL
+  document.getElementById('mql-status-no-sdr').style.display = sdrOn ? 'none' : 'flex';
+  document.getElementById('mql-status-sdr').style.display = sdrOn ? 'flex' : 'none';
+  document.getElementById('mql-note-no-sdr').style.display = sdrOn ? 'none' : 'block';
+  document.getElementById('mql-note-sdr').style.display = sdrOn ? 'block' : 'none';
+
+  // SQL
+  document.getElementById('sql-status-no-sdr').style.display = sdrOn ? 'none' : 'flex';
+  document.getElementById('sql-status-sdr').style.display = sdrOn ? 'flex' : 'none';
+  document.getElementById('sql-note-no-sdr').style.display = sdrOn ? 'none' : 'block';
+  document.getElementById('sql-note-sdr').style.display = sdrOn ? 'block' : 'none';
+
+  if (sdrOn) {
+    note.textContent = 'SDR works the MQL. SQL is the outcome of qualification — AE picks up from there.';
+    note.style.color = 'var(--sales)';
+  } else {
+    note.textContent = 'Lead Status starts at SQL. AE owns the full motion from MQL handoff.';
+    note.style.color = 'var(--text-muted)';
+  }
 }
 </script>
 
