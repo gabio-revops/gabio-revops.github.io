@@ -842,13 +842,26 @@
           <h4>Closed Lost → Cool-down → Recycle</h4>
           <p>
             Deal → Closed Lost<br>
-            Lead Status → <strong style="color:var(--danger)">Unqualified</strong> (hard) or <strong style="color:var(--deal)">Bad Timing</strong> (soft)<br>
-            ↓ Wait 30–90 days (cool-down workflow)<br>
-            ↓ Re-engagement signal received<br>
+            <br>
+            <strong style="color:var(--text)">Lost before Stage 2 (pre-pipeline):</strong><br>
+            Contact never became Opportunity.<br>
+            Lifecycle stays = <strong style="color:var(--sales)">SQL</strong><br>
+            Lead Status → <strong style="color:var(--danger)">Unqualified</strong> (hard DQ → move to Other)<br>
+            or <strong style="color:var(--deal)">Bad Timing</strong> (soft → stay SQL, enter nurture)<br>
+            <br>
+            <strong style="color:var(--text)">Lost after Stage 2 (was Opportunity):</strong><br>
+            Lifecycle stays = <strong style="color:var(--deal)">Opportunity</strong> unless hard DQ<br>
+            Hard DQ only → move to <strong style="color:var(--opt)">Other</strong><br>
+            Lead Status → <strong style="color:var(--deal)">Bad Timing</strong> or <strong style="color:var(--danger)">Unqualified</strong><br>
+            <br>
+            ↓ Cool-down workflow (45–90 days)<br>
+            ↓ Active Nurture Category set on contact<br>
+            ↓ Re-engagement score triggers<br>
             <br>
             WITHOUT Lead Object:<br>
-            Lead Status → <strong style="color:var(--mkt)">Recycled</strong> (custom)<br>
-            Lifecycle Stage reset to <strong style="color:var(--sales)">MQL</strong> or <strong style="color:var(--sales)">SQL</strong><br>
+            Lead Status → <strong style="color:var(--mkt)">Nurture</strong> (custom) after cool-down<br>
+            Contact drops into campaign for their specific nurture reason<br>
+            On re-engagement: Lead Status → <strong style="color:var(--sales)">New</strong>, resurfaces in sales view<br>
             <br>
             WITH Lead Object:<br>
             New Lead Object created on contact<br>
@@ -872,16 +885,42 @@
           </p>
         </div>
         <div class="recycle-card rc-timing">
-          <h4>Bad Timing → Nurture → Re-surface</h4>
+          <h4>Bad Timing → Active Nurture → Re-surface</h4>
           <p>
             Lead Status = <strong style="color:var(--deal)">Bad Timing</strong><br>
-            Lifecycle Stage stays = <strong style="color:var(--sales)">SQL</strong> (don't reset)<br>
-            ↓ Enrolled in long-term nurture<br>
-            ↓ Activity or intent signal fires<br>
-            Lead Status → <strong style="color:var(--sales)">New</strong> (re-assigned)<br>
-            Sales rep alerted via task/notification<br>
-            Deal record created (if needed)
+            Lifecycle Stage stays = <strong style="color:var(--sales)">SQL</strong> — don't reset<br>
+            <br>
+            Set custom property: <strong style="color:var(--text)">Active Nurture Category</strong><br>
+            Use the CL reason to set the category<br>
+            (e.g. budget, timing, competition, no decision)<br>
+            <br>
+            ↓ Cool-down delay (45–60 days, match to your cycle)<br>
+            ↓ Lead Status → <strong style="color:var(--mkt)">Nurture</strong> (custom) when delay ends<br>
+            ↓ Contact drops into campaign specific to their nurture reason<br>
+            ↓ Engagement score builds back up<br>
+            ↓ Score threshold hit → Lead Status → <strong style="color:var(--sales)">New</strong><br>
+            Contact magically resurfaces in pre-sales / sales view<br>
+            Sales rep alerted via task/notification
           </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SALES PRINCIPLES -->
+    <div style="margin-top:16px; background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--sales); border-radius:var(--radius-lg); padding:16px 20px; max-width:1200px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--sales);margin-bottom:10px;">💡 Core Principles</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;">
+        <div style="font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-dim);line-height:1.8;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border2);">
+          <strong style="color:var(--text);display:block;margin-bottom:4px;">Stage is a destination — you graduate to it</strong>
+          Lifecycle Stage should never go backwards. It represents the highest level of engagement a contact has achieved. Working someone backwards means approaching a qualified contact as though you've never heard of them.
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-dim);line-height:1.8;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border2);">
+          <strong style="color:var(--text);display:block;margin-bottom:4px;">Sales should never really care about Lifecycle Stage</strong>
+          Lead Status is the sales rep's guide. Lifecycle Stage is for marketing and leadership reporting. The funnel/conversion reports pull stages from different objects into one view — end to end from contact to deal to company.
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-dim);line-height:1.8;padding:10px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border2);">
+          <strong style="color:var(--text);display:block;margin-bottom:4px;">One Lead Object per sales cycle</strong>
+          If using the Lead Object, create one per cycle — not one per contact. Each new sales motion (recycle, win-back, new product) gets a fresh Lead Object. This keeps history clean without touching Lifecycle Stage.
         </div>
       </div>
     </div>
@@ -945,7 +984,7 @@
         <span class="tag tag-sales">Connected</span>
         <span class="tag tag-sales">In Progress</span>
         <span class="tag tag-sales">Bad Timing</span>
-        <div class="sub-note">No Lead Object → also add custom:<br>Recycled, Re-Engaged</div>
+        <div class="sub-note">No Lead Object → also add custom:<br>Nurture, Re-Engaged</div>
       </div>
       <div class="prop-cell">
         <span class="tag tag-sales">① Appt Scheduled</span>
@@ -1041,7 +1080,11 @@
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;">
       <div style="font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:var(--deal);margin-bottom:6px;">BAD TIMING</div>
-      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);line-height:1.7;">Soft disqualification. Right fit, wrong moment. Keep in long-term nurture. Recycle on re-engagement signal.</div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);line-height:1.7;">Soft disqualification. Right fit, wrong moment. Sets Active Nurture Category. Enters cool-down then nurture campaign.</div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--mkt);border-radius:var(--radius);padding:14px;">
+      <div style="font-family:'DM Mono',monospace;font-size:10px;font-weight:700;color:var(--mkt);margin-bottom:6px;">NURTURE <span style="color:var(--opt);font-weight:400;">(custom)</span></div>
+      <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-muted);line-height:1.7;">Set after cool-down delay expires. Contact is in an active nurture campaign matched to their CL reason. When engagement score threshold is hit, flips back to New and resurfaces in sales view.</div>
     </div>
   </div>
 
@@ -1146,6 +1189,7 @@
         <ul class="compare-list">
           <li>Use <strong>extra Lead Status values</strong> to track recycles (e.g. Recycled, Re-Engaged)</li>
           <li>Single contact record carries all history — can get messy with multiple sales cycles</li>
+          <li>Lifecycle Stage manipulation required on recycle — must clear and reset</li>
           <li>Better for <strong>simpler funnels</strong> and smaller teams</li>
           <li>No additional HubSpot objects to configure or maintain</li>
           <li>Bad Timing / Unqualified exit statuses serve double duty as "parked" states</li>
