@@ -829,8 +829,8 @@
       <p style="font-family:'DM Mono',monospace;font-size:10.5px;color:var(--text-dim);line-height:1.8;">
         HubSpot doesn't have a native "Churned Customer" lifecycle stage. Best practice: keep Lifecycle Stage = <strong style="color:var(--cust)">Customer</strong> and add a custom contact property
         <strong style="color:var(--text)">Customer Status</strong> = <strong style="color:var(--danger)">Churned</strong> (or use a custom lifecycle stage if your version supports it).
-        This preserves reporting integrity while making churned contacts filterable. For re-engagement, trigger a cool-down workflow then update 
-        Lead Status → <strong style="color:var(--warn)">Bad Timing</strong>, then recycle to <strong style="color:var(--sales)">MQL</strong> or <strong style="color:var(--sales)">SQL</strong> depending on re-engagement signal strength.
+        This preserves reporting integrity while making churned contacts filterable. For win-back, trigger a cool-down workflow, then create a new Deal in a renewal/win-back pipeline.
+        <strong style="color:var(--danger)">Never recycle a churned customer back to MQL or SQL — Lifecycle Stage must never go backwards from Customer.</strong>
       </p>
     </div>
 
@@ -859,17 +859,16 @@
           <h4>Churned Customer → Win-Back</h4>
           <p>
             Customer Status = Churned (custom property)<br>
-            Lifecycle Stage stays = <strong style="color:var(--cust)">Customer</strong><br>
+            Lifecycle Stage stays = <strong style="color:var(--cust)">Customer</strong> — always<br>
             ↓ Win-back nurture sequence<br>
             ↓ Re-engagement signal<br>
             <br>
-            WITHOUT Lead Object:<br>
-            Lead Status → <strong style="color:var(--mkt)">Recycled</strong> (custom)<br>
-            New deal created at pre-pipeline stage<br>
+            New <strong style="color:var(--deal)">Deal created</strong> in renewal/win-back pipeline<br>
+            Customer Status → <strong style="color:var(--cust)">Active</strong> on Closed Won<br>
+            Lead Status is not relevant — they are not a lead<br>
             <br>
-            WITH Lead Object:<br>
-            New Lead Object created<br>
-            Full sales motion restarted
+            <strong style="color:var(--danger)">⚠ Never recycle to MQL or SQL.</strong><br>
+            Lifecycle Stage must never go backwards from Customer.
           </p>
         </div>
         <div class="recycle-card rc-timing">
