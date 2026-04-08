@@ -23,45 +23,7 @@
   }
 
 
-  /* Light mode overrides */
-  [data-theme="light"] {
-    --bg: #ffffff;
-    --surface: #f8f9fa;
-    --surface2: #e9ecef;
-    --border: #cbd5e1;
-    --border2: #94a3b8;
 
-    --mkt: #059669;
-    --mkt-dim: rgba(5,150,105,0.1);
-    --mkt-glow: rgba(5,150,105,0.2);
-
-    --sales: #2563eb;
-    --sales-dim: rgba(37,99,235,0.1);
-    --sales-glow: rgba(37,99,235,0.2);
-
-    --deal: #7c3aed;
-    --deal-dim: rgba(124,58,237,0.1);
-    --deal-glow: rgba(124,58,237,0.2);
-
-    --cust: #ea580c;
-    --cust-dim: rgba(234,88,12,0.1);
-    --cust-glow: rgba(234,88,12,0.2);
-
-    --danger: #dc2626;
-    --danger-dim: rgba(220,38,38,0.1);
-    
-    --warn: #ea580c;
-    --warn-dim: rgba(234,88,12,0.1);
-
-    --opt: #475569;
-    --opt-dim: rgba(71,85,105,0.08);
-
-    --text: #0f172a;
-    --text-muted: #64748b;
-    --text-dim: #475569;
-
-    --accent: #059669;
-  }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -304,20 +266,6 @@
 </head>
 <body>
 
-<!-- Theme Toggle -->
-<input type="checkbox" id="theme-toggle" />
-<div class="theme-toggle-wrapper">
-  <label for="theme-toggle" class="theme-toggle-label">
-    <svg class="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-    </svg>
-    <div class="theme-toggle-checkbox"></div>
-    <svg class="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-    </svg>
-  </label>
-</div>
-
 <nav class="main-nav">
   <a href="/" class="nav-link">RevOps Framework</a>
   <a href="/field-notes.html" class="nav-link">Field Notes</a>
@@ -427,37 +375,6 @@ function copyCode(btn) {
 }
 </script>
 
-<script>
-(function() {
-  // Force dark mode as default, clear any bad localStorage
-  var savedTheme = localStorage.getItem('theme');
-  if (!savedTheme || (savedTheme !== 'dark' && savedTheme !== 'light')) {
-    savedTheme = 'dark';
-    localStorage.setItem('theme', 'dark');
-  }
-  
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  
-  function initToggle() {
-    var toggle = document.getElementById('theme-toggle');
-    if (!toggle) return;
-    
-    // Unchecked = dark (default), Checked = light
-    toggle.checked = (savedTheme === 'light');
-    
-    toggle.addEventListener('change', function() {
-      var newTheme = this.checked ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-    });
-  }
-  
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initToggle);
-  } else {
-    initToggle();
-  }
-})();
-</script>
+
 </body>
 </html>
