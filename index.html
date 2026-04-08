@@ -47,6 +47,28 @@
     --radius-lg: 14px;
   }
 
+
+  /* Light mode overrides */
+  [data-theme="light"] {
+    --bg: #ffffff;
+    --surface: #f8f9fa;
+    --surface2: #e9ecef;
+    --border: #dee2e6;
+    --border2: #ced4da;
+
+    --mkt-dim: rgba(0,201,167,0.08);
+    --sales-dim: rgba(79,142,247,0.08);
+    --deal-dim: rgba(167,139,250,0.08);
+    --cust-dim: rgba(245,158,11,0.08);
+    --danger-dim: rgba(248,113,113,0.08);
+    --warn-dim: rgba(251,146,60,0.08);
+    --opt-dim: rgba(100,116,139,0.06);
+
+    --text: #1a202c;
+    --text-muted: #64748b;
+    --text-dim: #475569;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -712,6 +734,167 @@
     transition: opacity 0.2s;
   }
 
+  /* ── NAVIGATION ─────────────────────────────── */
+  .main-nav {
+    max-width: 1200px;
+    margin: 0 auto 32px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .nav-link {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border-radius: 50px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+  .nav-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .nav-link.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+
+  /* ── THEME TOGGLE ─────────────────────────────── */
+  .theme-toggle-wrapper {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+  }
+  .theme-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 6px 12px 6px 10px;
+    transition: all 0.2s;
+  }
+  .theme-toggle-label:hover {
+    border-color: var(--accent);
+  }
+  .theme-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+  }
+  .theme-toggle-checkbox {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    background: var(--border2);
+    border-radius: 50px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .theme-toggle-checkbox::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: left 0.2s;
+  }
+  input[type="checkbox"]#theme-toggle:checked + .theme-toggle-label .theme-toggle-checkbox {
+    background: var(--accent);
+  }
+  input[type="checkbox"]#theme-toggle:checked + .theme-toggle-label .theme-toggle-checkbox::after {
+    left: 21px;
+  }
+  input[type="checkbox"]#theme-toggle {
+    display: none;
+  }
+  @media (max-width: 768px) {
+    .theme-toggle-wrapper {
+      top: 16px;
+      right: 16px;
+    }
+  }
+
+  /* responsive */
+  @media (max-width: 768px) {
+  /* ── THEME TOGGLE ─────────────────────────────── */
+  .theme-toggle-wrapper {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 1000;
+  }
+  .theme-toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 6px 12px 6px 10px;
+    transition: all 0.2s;
+  }
+  .theme-toggle-label:hover {
+    border-color: var(--accent);
+  }
+  .theme-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+  }
+  .theme-toggle-checkbox {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    background: var(--border2);
+    border-radius: 50px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+  .theme-toggle-checkbox::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    top: 3px;
+    left: 3px;
+    transition: left 0.2s;
+  }
+  input[type="checkbox"]#theme-toggle:checked + .theme-toggle-label .theme-toggle-checkbox {
+    background: var(--accent);
+  }
+  input[type="checkbox"]#theme-toggle:checked + .theme-toggle-label .theme-toggle-checkbox::after {
+    left: 21px;
+  }
+  input[type="checkbox"]#theme-toggle {
+    display: none;
+  }
+  @media (max-width: 768px) {
+    .theme-toggle-wrapper {
+      top: 16px;
+      right: 16px;
+    }
+  }
+
   /* responsive */
   @media (max-width: 768px) {
     .flow-grid { grid-template-columns: repeat(4, 1fr); }
@@ -725,6 +908,26 @@
 </style>
 </head>
 <body>
+
+<!-- Theme Toggle -->
+<input type="checkbox" id="theme-toggle" />
+<div class="theme-toggle-wrapper">
+  <label for="theme-toggle" class="theme-toggle-label">
+    <svg class="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+    </svg>
+    <div class="theme-toggle-checkbox"></div>
+    <svg class="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+    </svg>
+  </label>
+</div>
+
+<nav class="main-nav">
+  <a href="/" class="nav-link active">RevOps Framework</a>
+  <a href="/field-notes.html" class="nav-link">Field Notes</a>
+  <a href="/recipes.html" class="nav-link">Recipes</a>
+</nav>
 
 <div class="header">
   <h1>Gabi's HubSpot <span>B2B RevOps</span> Framework</h1>
@@ -1342,5 +1545,6 @@ function toggleSDR() {
 }
 </script>
 
+<script src="/theme-toggle.js"></script>
 </body>
 </html>

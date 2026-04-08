@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recipes — Gabi's HubSpot Knowledge Base</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #1e2330;
+    --border2: #252c3a;
+    --accent: #00c9a7;
+    --warn: #fb923c;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --radius: 8px;
+    --radius-lg: 14px;
+  }
+
+
+  /* Light mode overrides */
+  [data-theme="light"] {
+    --bg: #ffffff;
+    --surface: #f8f9fa;
+    --surface2: #e9ecef;
+    --border: #dee2e6;
+    --border2: #ced4da;
+
+    --mkt-dim: rgba(0,201,167,0.08);
+    --sales-dim: rgba(79,142,247,0.08);
+    --deal-dim: rgba(167,139,250,0.08);
+    --cust-dim: rgba(245,158,11,0.08);
+    --danger-dim: rgba(248,113,113,0.08);
+    --warn-dim: rgba(251,146,60,0.08);
+    --opt-dim: rgba(100,116,139,0.06);
+
+    --text: #1a202c;
+    --text-muted: #64748b;
+    --text-dim: #475569;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 32px 24px;
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #fff;
+    line-height: 1.15;
+  }
+  .header h1 span { color: var(--accent); }
+  .header p {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── NAVIGATION ─────────────────────────────── */
+  .main-nav {
+    max-width: 1200px;
+    margin: 0 auto 48px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .nav-link {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border-radius: 50px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+  .nav-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .nav-link.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+
+  /* ── CONTENT ─────────────────────────────────── */
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+  .intro p {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.8;
+  }
+
+  .recipe-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 0;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .recipe-header {
+    padding: 24px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .recipe-card h2 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .recipe-card .description {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+  .recipe-body {
+    padding: 24px 28px;
+  }
+  .recipe-card .use-case {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: var(--surface2);
+    border-left: 3px solid var(--warn);
+    border-radius: 4px;
+  }
+  .recipe-card .use-case strong {
+    display: block;
+    color: var(--warn);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+
+  .code-block {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .code-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .code-lang {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+  .copy-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: var(--border2);
+    border: 1px solid var(--border2);
+    color: var(--text-muted);
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #000;
+  }
+  .code-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--text);
+    overflow-x: auto;
+    white-space: pre;
+    margin: 0;
+  }
+  .code-block code {
+    color: var(--text);
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: rgba(0,201,167,0.12);
+    border: 1px solid rgba(0,201,167,0.3);
+    color: var(--accent);
+    margin-bottom: 12px;
+    margin-right: 6px;
+  }
+  .tag.js { background: rgba(251,191,36,0.12); border-color: rgba(251,191,36,0.3); color: #fbbf24; }
+  .tag.python { background: rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.3); color: #3b82f6; }
+  .tag.workflow { background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.3); color: #a78bfa; }
+
+  .notes {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border2);
+  }
+  .notes strong {
+    color: var(--text);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+  }
+  .empty-state h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- Theme Toggle -->
+<input type="checkbox" id="theme-toggle" />
+<div class="theme-toggle-wrapper">
+  <label for="theme-toggle" class="theme-toggle-label">
+    <svg class="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+    </svg>
+    <div class="theme-toggle-checkbox"></div>
+    <svg class="theme-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+    </svg>
+  </label>
+</div>
+
+<nav class="main-nav">
+  <a href="/" class="nav-link">RevOps Framework</a>
+  <a href="/field-notes.html" class="nav-link">Field Notes</a>
+  <a href="/recipes.html" class="nav-link active">Recipes</a>
+</nav>
+
+<div class="header">
+  <h1><span>Recipes</span></h1>
+  <p>Copy-paste solutions that actually work</p>
+</div>
+
+<div class="container">
+  
+  <div class="intro">
+    <p>
+      Scripts, workflows, and configs I've built for clients. No theory, no fluff — 
+      just working code you can copy, paste, and customize. Each recipe includes the use case, 
+      the code, and notes on what to watch out for.
+    </p>
+  </div>
+
+  <!-- Example recipe card - delete this and add your own -->
+  <div class="recipe-card">
+    <div class="recipe-header">
+      <span class="tag js">JavaScript</span>
+      <span class="tag">Forms</span>
+      <h2>Populate Hidden Form Field on Non-HubSpot Page</h2>
+      <div class="description">
+        Captures UTM parameters, referrer, or any URL query string and populates a hidden field 
+        on an external form before submission to HubSpot. Essential for attribution tracking when 
+        you can't use HubSpot's native forms.
+      </div>
+    </div>
+    <div class="recipe-body">
+      <div class="use-case">
+        <strong>Use Case</strong>
+        You're using Webflow, Wordpress, or custom forms but still want to track campaign attribution 
+        in HubSpot. This script reads URL parameters and injects them into hidden fields so they flow 
+        into HubSpot on form submit via the Forms API.
+      </div>
+
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">JavaScript</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>// Get URL parameter by name
+function getParam(name) {
+  const params = new URLSearchParams(window.location.search);
+  return params.get(name) || '';
+}
+
+// Populate hidden fields on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // UTM parameters
+  document.getElementById('utm_source').value = getParam('utm_source');
+  document.getElementById('utm_medium').value = getParam('utm_medium');
+  document.getElementById('utm_campaign').value = getParam('utm_campaign');
+  
+  // Referrer
+  document.getElementById('referrer').value = document.referrer;
+  
+  // First page visited (store in sessionStorage)
+  if (!sessionStorage.getItem('first_page')) {
+    sessionStorage.setItem('first_page', window.location.href);
+  }
+  document.getElementById('first_page').value = sessionStorage.getItem('first_page');
+});</code></pre>
+      </div>
+
+      <div class="notes">
+        <strong>Notes:</strong> Make sure your hidden input IDs match the field names expected by your HubSpot form. 
+        For HubSpot Forms API submissions, the field names must match your HubSpot property internal names exactly. 
+        Use sessionStorage for first-touch attribution so it persists across pages in the same session.
+      </div>
+    </div>
+  </div>
+
+  <!-- Add more recipe cards here following the same structure -->
+
+  <!-- Uncomment this if you want an empty state message
+  <div class="empty-state">
+    <h3>More recipes coming soon</h3>
+    <p>Check back later for more scripts and workflows</p>
+  </div>
+  -->
+
+</div>
+
+<script>
+function copyCode(btn) {
+  const codeBlock = btn.closest('.code-block').querySelector('code');
+  const text = codeBlock.textContent;
+  
+  navigator.clipboard.writeText(text).then(() => {
+    const original = btn.textContent;
+    btn.textContent = 'Copied!';
+    btn.style.background = 'var(--accent)';
+    btn.style.color = '#000';
+    
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.style.background = '';
+      btn.style.color = '';
+    }, 2000);
+  });
+}
+</script>
+
+<script src="/theme-toggle.js"></script>
+</body>
+</html>
