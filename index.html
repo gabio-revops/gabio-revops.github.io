@@ -812,7 +812,12 @@
   .theme-icon {
     width: 18px;
     height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
     color: var(--text-muted);
+    flex-shrink: 0;
   }
   .theme-toggle-checkbox {
     position: relative;
@@ -876,7 +881,12 @@
   .theme-icon {
     width: 18px;
     height: 18px;
+    min-width: 18px;
+    min-height: 18px;
+    max-width: 18px;
+    max-height: 18px;
     color: var(--text-muted);
+    flex-shrink: 0;
   }
   .theme-toggle-checkbox {
     position: relative;
@@ -1566,13 +1576,20 @@ function toggleSDR() {
 
 <script>
 (function() {
-  var savedTheme = localStorage.getItem('theme') || 'dark';
+  // Force dark mode as default, clear any bad localStorage
+  var savedTheme = localStorage.getItem('theme');
+  if (!savedTheme || (savedTheme !== 'dark' && savedTheme !== 'light')) {
+    savedTheme = 'dark';
+    localStorage.setItem('theme', 'dark');
+  }
+  
   document.documentElement.setAttribute('data-theme', savedTheme);
   
   function initToggle() {
     var toggle = document.getElementById('theme-toggle');
     if (!toggle) return;
     
+    // Unchecked = dark (default), Checked = light
     toggle.checked = (savedTheme === 'light');
     
     toggle.addEventListener('change', function() {
