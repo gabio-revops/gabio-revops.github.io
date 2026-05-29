@@ -402,13 +402,13 @@ document.addEventListener('DOMContentLoaded', function() {
       </p>
       <p>RFP pipeline stages:</p>
       <ul>
-        <li><strong>RFP Announced</strong> — entry point for cold RFPs. Playbook completes here.</li>
-        <li><strong>Proposal in Progress</strong> — committed to responding. Project is created.</li>
-        <li><strong>Proposal Submitted</strong> — awaiting shortlist or demo invitation.</li>
-        <li><strong>Interview Confirmed</strong> — shortlisted; demo or presentation scheduled.</li>
-        <li><strong>Proposal Accepted</strong> — selected; may include BAFO negotiation.</li>
-        <li><strong>Contracting</strong> — legal terms finalized.</li>
-        <li><strong>Closed Won</strong> / <strong>Closed Lost</strong> — opt-outs are logged as Closed Lost with reason "Opted Out" so reporting captures pass-rate without inflating win rate.</li>
+        <li><strong>RFP Announced:</strong> entry point for cold RFPs. Playbook completes here.</li>
+        <li><strong>Proposal in Progress:</strong> committed to responding. Project is created.</li>
+        <li><strong>Proposal Submitted:</strong> awaiting shortlist or demo invitation.</li>
+        <li><strong>Interview Confirmed:</strong> shortlisted; demo or presentation scheduled.</li>
+        <li><strong>Proposal Accepted:</strong> selected; may include BAFO pricing negotiation before contract.</li>
+        <li><strong>Contracting:</strong> legal terms finalized. RFP submissions usually include pre-negotiated exceptions, so this stage often moves faster than in a standard deal.</li>
+        <li><strong>Closed Won</strong> / <strong>Closed Lost:</strong> opt-outs are logged as Closed Lost with reason "Opted Out" so reporting captures pass-rate without inflating win rate.</li>
       </ul>
 
       <h3>2. Go/No-Go Playbook</h3>
@@ -446,8 +446,13 @@ if([can_we_meet_product_requirements_including_roadmap] = "Yes", 1, 0)</code></p
 
       <h3>4. Recommendation Workflow</h3>
       <p>
-        Triggered by Playbook Log completion or Playbook Score change. Single branch with ordered conditions, stops at the first match.
-        Stage advancement stays manual so the manager or rep can override.
+        Triggers on Playbook Log completed for the Go/No-Go Assessment, OR when Playbook Score changes to any value greater than 0.
+        Re-enrollment is on, so edits to any criterion re-evaluate the recommendation. Enrollment requires all six criteria
+        properties to be known, which guarantees the workflow only fires once the playbook is genuinely complete.
+      </p>
+      <p>
+        Single branch with ordered conditions; stops at the first match. The workflow notifies the manager once the recommendation
+        is set, but stage advancement stays manual so the manager or rep can override.
       </p>
       <div class="code-block">
         <div class="code-block-header">
@@ -461,28 +466,71 @@ if([can_we_meet_product_requirements_including_roadmap] = "Yes", 1, 0)</code></p
 5. Playbook Score &gt;= 4                       -> GO
 6. Else                                      -> NO-GO (Failed to meet 4 of 6 criteria)</code></pre>
       </div>
+      <p>
+        No-Go Reason is a dropdown that only populates when the recommendation is NO-GO. That way the reason is always tied to
+        an actual decline and never sits orphaned on a deal that ended up advancing.
+      </p>
 
       <h3>5. Project + Three Chained Workflows</h3>
       <p>
-        Once a deal advances to Proposal in Progress, a HubSpot Project is created and linked to the deal. The automation is split
-        into three single-responsibility workflows so each one fires off the record created by the previous step. This sidesteps the
-        usual "newly-created record ID" lookup problem.
+        Once a deal advances to Proposal in Progress (RFP pipeline) or 3 - Proposal Review (standard sales pipeline), a HubSpot
+        Project is created and linked to the deal. The same automation runs from both pipelines so cold and influenced RFPs both
+        benefit from the templated tasks and date logic.
       </p>
+      <p>
+        The build is three single-responsibility workflows so each one fires off the record created by the previous step.
+        This sidesteps the usual "newly-created record ID" lookup problem in HubSpot workflows, where you can't reference a
+        record's ID in the same workflow that just created it.
+      </p>
+
+      <h3>Project-Level Date Properties</h3>
+      <p>Four date properties live on the project. Three populate automatically; one is manual.</p>
       <ul>
-        <li><strong>Workflow 1 (Create Project):</strong> triggers on deal stage change. Creates the project, copies RFP Deadline forward, associates to the deal and primary company.</li>
-        <li><strong>Workflow 2 (Create Tasks):</strong> triggers on project creation. Creates 11 sequential tasks from the template, assigned to the project owner (AE) except the win/loss debrief, which goes to the manager.</li>
-        <li><strong>Workflow 3 (Set Task Dates):</strong> triggers on task creation. Branches by task title and sets the due date from the matching project-level date property.</li>
+        <li><strong>RFP Response Deadline:</strong> copied from the deal's RFP Deadline by Workflow 1.</li>
+        <li><strong>RFP Q&amp;A Deadline:</strong> manual entry. Q&amp;A timing varies by RFP with no consistent offset from the response deadline, so it's left for the AE to enter when the schedule is known.</li>
+        <li><strong>RFP Internal Review Deadline:</strong> calculated. <code>[RFP Response Deadline] - (3 * 86400000)</code>. Three days before submission.</li>
+        <li><strong>RFP Internal Debrief Deadline:</strong> calculated. <code>[RFP Response Deadline] + (5 * 86400000)</code>. Five days after submission.</li>
+      </ul>
+      <p>
+        RFP Deadline is enforced as a required deal property whenever Procurement Method = RFP via conditional property logic.
+        That guarantees Workflow 1 always has a date to copy forward, and that all downstream calculated dates resolve.
+      </p>
+
+      <h3>Workflow 1: Create Project</h3>
+      <ul>
+        <li><strong>Trigger:</strong> Deal stage changes to Proposal in Progress (RFP pipeline) or 3 - Proposal Review (sales pipeline). Re-enroll off.</li>
+        <li><strong>Enrollment:</strong> Procurement Method = RFP.</li>
+        <li><strong>Action:</strong> Creates a project named "RFP Response - [Deal Name]" in the RFP Responses pipeline at the Planning stage. Owner = deal owner. Target due date copies from the deal's RFP Deadline. Associated to the enrolled deal and the deal's primary company.</li>
       </ul>
 
-      <h3>6. Date Math Gotcha</h3>
-      <p>
-        HubSpot date fields are stored as milliseconds, so day offsets must be expressed as <code>days * 86400000</code>.
-        Example: Internal Review Deadline = <code>[RFP Response Deadline] - (3 * 86400000)</code>.
-      </p>
-      <p>
-        Limitation: task due dates are set once at task creation. If the response deadline shifts mid-project, the project-level
-        calculated dates recalc automatically but the task due dates do not. The AE has to update them by hand.
-      </p>
+      <h3>Workflow 2: Create Tasks</h3>
+      <ul>
+        <li><strong>Trigger:</strong> Project record created. Re-enroll off.</li>
+        <li><strong>Enrollment:</strong> Project name starts with "RFP Response" AND Create date is Today. The Today guard prevents historical projects from getting a fresh round of tasks if the workflow is ever toggled off and back on.</li>
+        <li><strong>Action:</strong> Eleven sequential Create Task steps from the RFP playbook template. Each task is assigned to the project owner (AE) except the win/loss debrief, which is assigned to the manager.</li>
+        <li><strong>Token usage:</strong> The "Create Slack channel" task uses the City (Company) token so the reminder text dynamically populates with the actual city name, e.g., "Create Slack channel #rfp-austin".</li>
+      </ul>
+
+      <h3>Workflow 3: Set Task Dates</h3>
+      <ul>
+        <li><strong>Trigger:</strong> Task records meeting custom conditions: status is none of Completed AND task title matches one of the four deadline-bearing tasks. Re-enroll off. The workflow only sets task due dates at task creation; it does not refire on later property changes.</li>
+        <li><strong>Action:</strong> Single branch on Task Title routes each matching task to its corresponding date logic. Each route checks whether the relevant project-level deadline is known, pulls it via "Project: Most recently associated", and sets the task due date from that property. If the project date is missing, the task keeps its existing due date as a fallback.</li>
+        <li>
+          <strong>Routing:</strong>
+          <ul>
+            <li>"Submit questions by Q&amp;A deadline; join Q&amp;A session" &rarr; RFP Q&amp;A Deadline</li>
+            <li>"Submit to Manager for review (min. 2 days before deadline)" &rarr; RFP Internal Review Deadline</li>
+            <li>"Submit RFP (ideally 1 day early)" &rarr; RFP Response Deadline</li>
+            <li>"Log win/loss debrief notes in HubSpot" &rarr; RFP Internal Debrief Deadline</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Date math gotcha:</strong> HubSpot date fields are stored as milliseconds, so any day offset in a calculated
+          property must be expressed as <code>days * 86400000</code>. The bigger trap: task due dates are set once, at task creation.
+          If the response deadline shifts mid-project, the project-level calculated dates recalc automatically, but the task dates
+          do not. The AE has to update them by hand when a deadline moves.
+        </li>
+      </ul>
 
       <div class="notes">
         <strong>Same pattern, other use cases:</strong> I've reused this stage-gated playbook + chained project-creation pattern for two adjacent processes.
