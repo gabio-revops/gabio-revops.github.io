@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Recipes — Gabi's HubSpot Knowledge Base</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@400;600;700;800&display=swap');
 
   :root {
     --bg: #0a0c10;
@@ -41,11 +41,12 @@
     margin-bottom: 32px;
   }
   .header h1 {
+    font-family: 'Space Grotesk', sans-serif;
     font-size: clamp(28px, 5vw, 48px);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: #fff;
-    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    line-height: 1.1;
   }
   .header h1 span { color: var(--accent); }
   .header p {
@@ -141,6 +142,34 @@
   .recipe-body {
     padding: 24px 28px;
   }
+  .recipe-body h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin-top: 24px;
+    margin-bottom: 10px;
+  }
+  .recipe-body h3:first-child { margin-top: 0; }
+  .recipe-body p {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+  .recipe-body ul {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.8;
+    margin-bottom: 12px;
+    padding-left: 20px;
+  }
+  .recipe-body ul li { margin-bottom: 4px; }
+  .recipe-body ul li strong { color: var(--text); }
   .recipe-card .use-case {
     font-family: 'DM Mono', monospace;
     font-size: 11px;
@@ -268,7 +297,6 @@
 
 <nav class="main-nav">
   <a href="/" class="nav-link">RevOps Framework</a>
-  <a href="/field-notes.html" class="nav-link">Field Notes</a>
   <a href="/recipes.html" class="nav-link active">Recipes</a>
 </nav>
 
@@ -341,6 +369,137 @@ document.addEventListener('DOMContentLoaded', function() {
         For HubSpot Forms API submissions, the field names must match your HubSpot property internal names exactly. 
         Use sessionStorage for first-touch attribution so it persists across pages in the same session.
       </div>
+    </div>
+  </div>
+
+  <!-- RFP recipe -->
+  <div class="recipe-card">
+    <div class="recipe-header">
+      <span class="tag workflow">Workflow</span>
+      <span class="tag">Playbooks</span>
+      <span class="tag">Projects</span>
+      <h2>RFP Pipeline with Go/No-Go Playbook and Auto-Created Response Project</h2>
+      <div class="description">
+        A three-part HubSpot build for managing inbound RFPs: a dedicated pipeline that keeps cold RFPs out of the sales win rate,
+        a Go/No-Go Playbook that captures qualifying answers as structured data and computes a recommendation, and a chained workflow
+        setup that spins up a Project with templated tasks and date logic once the deal commits to responding.
+      </div>
+    </div>
+    <div class="recipe-body">
+
+      <div class="use-case">
+        <strong>Use Case</strong>
+        You're tracking RFPs in a spreadsheet, your win rate is getting dragged down by deals you never had a real shot at,
+        and there's no shared view of who's working on what. This pattern moves the entire process into HubSpot, captures the
+        qualification logic as data instead of vibes, and gives the AE, manager, and PM a single source of truth for tasks and deadlines.
+      </div>
+
+      <h3>1. Pipeline Structure</h3>
+      <p>
+        Cold RFPs (found via BidPrime, procurement portals, or Google alerts with no prior relationship) live in a dedicated
+        RFP pipeline so they don't drag down the sales-led win rate. Influenced RFPs (where an active deal triggers a competitive
+        bid requirement) stay in the standard sales pipeline with a Procurement Method = RFP flag on the deal.
+      </p>
+      <p>RFP pipeline stages:</p>
+      <ul>
+        <li><strong>RFP Announced</strong> — entry point for cold RFPs. Playbook completes here.</li>
+        <li><strong>Proposal in Progress</strong> — committed to responding. Project is created.</li>
+        <li><strong>Proposal Submitted</strong> — awaiting shortlist or demo invitation.</li>
+        <li><strong>Interview Confirmed</strong> — shortlisted; demo or presentation scheduled.</li>
+        <li><strong>Proposal Accepted</strong> — selected; may include BAFO negotiation.</li>
+        <li><strong>Contracting</strong> — legal terms finalized.</li>
+        <li><strong>Closed Won</strong> / <strong>Closed Lost</strong> — opt-outs are logged as Closed Lost with reason "Opted Out" so reporting captures pass-rate without inflating win rate.</li>
+      </ul>
+
+      <h3>2. Go/No-Go Playbook</h3>
+      <p>
+        A HubSpot Playbook ("RFP - Go/No-Go Assessment") attaches to deals at the RFP Announced stage. It applies only to cold RFPs;
+        influenced RFPs skip the playbook since the decision to pursue is already made. All six questions are required, which guarantees
+        clean data for the downstream score and recommendation.
+      </p>
+      <ul>
+        <li>Did we have prior contact or provide input to this RFP?</li>
+        <li>Is the RFP clearly written for a competitor?</li>
+        <li>Do we have more than 1 week to respond?</li>
+        <li>Is the budget above $10K?</li>
+        <li>Will this bring us into a new state or represent a top logo?</li>
+        <li>Can we meet product requirements (including roadmap)?</li>
+      </ul>
+
+      <h3>3. Playbook Score (Calculated Property)</h3>
+      <p>
+        A deal-level calculation tallies favorable answers, returning 0-6. Criterion 2 is inverted on purpose: a competitor-written
+        RFP is a bad sign, so "No" earns the point.
+      </p>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">HubSpot Calculation</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>if([did_we_have_prior_contact_or_provide_input_to_this_rfp] = "Yes", 1, 0) +
+if([is_the_rfp_clearly_written_for_a_competitor] = "No", 1, 0) +
+if([do_we_have_more_than_1_week_to_respond] = "Yes", 1, 0) +
+if([is_the_budget_above_10k] = "Yes", 1, 0) +
+if([will_this_bring_us_into_a_new_state_or_represent_a_top_logo] = "Yes", 1, 0) +
+if([can_we_meet_product_requirements_including_roadmap] = "Yes", 1, 0)</code></pre>
+      </div>
+
+      <h3>4. Recommendation Workflow</h3>
+      <p>
+        Triggered by Playbook Log completion or Playbook Score change. Single branch with ordered conditions, stops at the first match.
+        Stage advancement stays manual so the manager or rep can override.
+      </p>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">Decision Order</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+        <pre><code>1. New state or top logo = Yes               -> GO
+2. Response time &gt; 1 week = No               -> NO-GO (Insufficient response time)
+3. Can meet product requirements = No        -> NO-GO (Cannot meet product requirements)
+4. Budget &gt; $10K = No AND Prior contact = No -> NO-GO (Budget under $10K and not influenced)
+5. Playbook Score &gt;= 4                       -> GO
+6. Else                                      -> NO-GO (Failed to meet 4 of 6 criteria)</code></pre>
+      </div>
+
+      <h3>5. Project + Three Chained Workflows</h3>
+      <p>
+        Once a deal advances to Proposal in Progress, a HubSpot Project is created and linked to the deal. The automation is split
+        into three single-responsibility workflows so each one fires off the record created by the previous step. This sidesteps the
+        usual "newly-created record ID" lookup problem.
+      </p>
+      <ul>
+        <li><strong>Workflow 1 (Create Project):</strong> triggers on deal stage change. Creates the project, copies RFP Deadline forward, associates to the deal and primary company.</li>
+        <li><strong>Workflow 2 (Create Tasks):</strong> triggers on project creation. Creates 11 sequential tasks from the template, assigned to the project owner (AE) except the win/loss debrief, which goes to the manager.</li>
+        <li><strong>Workflow 3 (Set Task Dates):</strong> triggers on task creation. Branches by task title and sets the due date from the matching project-level date property.</li>
+      </ul>
+
+      <h3>6. Date Math Gotcha</h3>
+      <p>
+        HubSpot date fields are stored as milliseconds, so day offsets must be expressed as <code>days * 86400000</code>.
+        Example: Internal Review Deadline = <code>[RFP Response Deadline] - (3 * 86400000)</code>.
+      </p>
+      <p>
+        Limitation: task due dates are set once at task creation. If the response deadline shifts mid-project, the project-level
+        calculated dates recalc automatically but the task due dates do not. The AE has to update them by hand.
+      </p>
+
+      <div class="notes">
+        <strong>Same pattern, other use cases:</strong> I've reused this stage-gated playbook + chained project-creation pattern for two adjacent processes.
+        <br><br>
+        <strong>Onboarding at Closed Won.</strong> A sales-to-CS handoff playbook fires at Closed Won and captures the context CS needs to onboard
+        cleanly: champion vs. economic buyer, success criteria from the deal, integrations promised, contract terms that affect
+        provisioning, known risks. A project spins up with the implementation tasks and dates derived from contract start.
+        <br><br>
+        <strong>Trial / pilot pipeline.</strong> A setup playbook captures everything needed to provision a trial org: data volume,
+        seat count, sandbox vs. production, integrations to enable, success metric the prospect agreed to measure. A project
+        templates the trial milestones (kickoff, mid-point check, final review) with dates derived from the trial start date.
+        <br><br>
+        The general recipe: a stage-gated playbook captures structured data, a calculated property plus workflow turns that data
+        into a routing decision or status, and a chained project-creation workflow templates the work that follows. Swap the
+        questions, swap the tasks, keep the chain.
+      </div>
+
     </div>
   </div>
 
